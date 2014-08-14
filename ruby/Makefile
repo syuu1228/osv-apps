@@ -48,13 +48,16 @@ upstream/cert.pem:
 	mkdir -p upstream
 	cd upstream && wget -O cert.pem "http://curl.haxx.se/ca/cacert.pem"
 
+upstream/ruby/access_rule.c: upstream/ruby
+	cd upstream/ruby && ruby dsl.rb ../../access_rule.rb > access_rule.c
+
 ${OPENSSL}: upstream/openssl-${SSL_VER}.tar.gz
 	cd upstream/openssl-${SSL_VER} && make
 
 ${LIBOBSTACK_A}: upstream/obstack-1.2.tar.bz2
 	cd upstream/obstack-1.2/ && make
 
-${LIBRUBY}: upstream/ruby
+${LIBRUBY}: upstream/ruby upstream/ruby/access_rule.c
 	cd upstream/ruby && make
 
 ${EXT_OPENSSL}:
