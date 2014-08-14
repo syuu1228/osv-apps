@@ -2,7 +2,7 @@
 module: ROOTFS usr.manifest
 
 KSL:
-	git clone -b spcamp git@github.com:syuu1228/KSL.git
+	git clone -b OSv git@github.com:syuu1228/KSL.git
 
 ROOTFS: ROOTFS/KSL
 ROOTFS/KSL: KSL
