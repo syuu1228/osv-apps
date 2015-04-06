@@ -1,0 +1,5 @@
+base: cloudius/osv-base
+
+cmdline: --maxnic=0 /httpd --network-stack native --dpdk-pmd
+
+build: ./GET

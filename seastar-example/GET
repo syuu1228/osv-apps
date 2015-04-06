@@ -1,0 +1,19 @@
+#!/bin/sh -e
+
+rm -rf dpdk ROOTFS
+git clone -b osv-head --depth 1 https://github.com/syuu1228/dpdk.git
+git clone --depth 1 https://github.com/cloudius-systems/seastar.git
+mkdir -p ROOTFS
+cd dpdk
+make install T=x86_64-native-osvapp-gcc OSV_SDK=`readlink -f ../../..`
+cd ..
+cp dpdk/x86_64-native-osvapp-gcc/lib/libintel_dpdk.so ROOTFS/
+cd seastar
+./configure.py --disable-xen --dpdk-target `readlink -f ../dpdk/x86_64-native-osvapp-gcc` --with-osv=`readlink -f ../../..`
+ninja-build
+cd ..
+find seastar/build/release/apps -executable -readable -type f -exec cp -v {} ROOTFS/ \;
+for i in ROOTFS/*
+do echo /${i#ROOTFS/}: \${MODULE_DIR}/$i
+done > usr.manifest
+find ROOTFS/ -executable -readable -type f -exec ldd {} \;|awk '{print $1,":",$3}'|grep "/lib"|grep -v "ld-linux"|grep -v "libc.so"|grep -v "libresolv.so.2"|grep -v "libpthread.so"|grep -v "libdl.so"|grep -v "libm.so"|grep -v "libstdc++.so"|grep -v "libaio.so"|grep -v "libgcc_s.so"|grep -v "librt.so"|sort|uniq|sed -e "s/ //" >> usr.manifest
